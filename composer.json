@@ -1,0 +1,16 @@
+{
+    "name": "aditya/laravel-query-builder",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Aditya\\QueryBuilder\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Aditya Dhembre",
+            "email": "adidhembre@gmail.com"
+        }
+    ],
+    "require": {}
+}
