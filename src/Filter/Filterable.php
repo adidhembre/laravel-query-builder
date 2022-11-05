@@ -2,8 +2,12 @@
 
 namespace Aditya\QueryBuilder\Filter;
 
+use Aditya\QueryBuilder\Common\General;
+
 trait Filterable
 {
+    use General;
+
     public function scopeFilter($query,Array $filters=null){
         $model = $query->getModel();
         $this->initiateFilters($model,$filters);
@@ -125,6 +129,7 @@ trait Filterable
         $processor_available = method_exists($model,'processFilterValues');
         foreach($filters as $key => $value){
             $value = $processor_available ? $model->processFilterValues($key,$value) : $value;
+            $value = is_object($value) ? $value->toArray() : $value;
             $this->meargeFilter($key,$value);
         }
     }
@@ -210,16 +215,6 @@ trait Filterable
             FilterCache::$available_keys[$filter] = $key;
             array_push(FilterCache::$model_keys[$class],$filter);
         }
-    }
-
-    private function fromModelGetKeys($model,$key){
-        if(method_exists($model,$key)){
-            return $model->{$key}();
-        }
-        else if($model->{$key} != null){
-            return $model->{$key};
-        }
-        return [];
     }
 
     private function fromModelGetFilters($model){

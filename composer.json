@@ -1,6 +1,7 @@
 {
     "name": "aditya/laravel-query-builder",
     "type": "library",
+    "description": "Easily Filter the queries",
     "autoload": {
         "psr-4": {
             "Aditya\\QueryBuilder\\": "src/"
@@ -12,5 +13,7 @@
             "email": "adidhembre@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "kirschbaum-development/eloquent-power-joins": "^2.6"
+    }
 }
