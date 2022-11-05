@@ -9,7 +9,7 @@ trait Sortable
 {
     use General, PowerJoins;
 
-    public function scopeSort($query,Array $key=null,$order='asc'){
+    public function scopeSort($query,String $key=null,$order='asc'){
         if($key==null) return $query;
         $model = $query->getModel();
         $this->mapAvailableKeys($model,$key);
@@ -18,12 +18,12 @@ trait Sortable
     }
 
     private function applySorting($query,$key,$order){
-        if(SortCache::$sort_column == null) SortCache::$sort_column = $key;
+        if(SortCache::$sort_column == null) SortCache::$sort_column = $key; // as it can be derived column
         $query->when(count(SortCache::$joins) > 0,function($q){
             $q->joinRelationship(implode('.',SortCache::$joins));
         })
         ->groupBy($query->getModel()->getTable().".id")
-        ->sortBy(SortCache::$sort_column,$order);
+        ->orderBy(SortCache::$sort_column,$order);
     }
 
     private function mapAvailableKeys($model,$key){
@@ -45,10 +45,8 @@ trait Sortable
             $child = $model->{$deep}()->getRelated()->getModel();
             SortCache::$joins = [$deep];
             SortCache::$match_found = $this->matchSortKeysInModel($child,$key);
-            $this->matchSortKeysFromDeepThrough($child,$key);
+            $this->matchSortKeysFromThrough($child,$key);
             if(SortCache::$match_found){
-                array_push(SortCache::$joins,$deep);
-                array_push(SortCache::$joins,$deep);
                 return true;
             };
         }
@@ -69,11 +67,11 @@ trait Sortable
             }
             if(isset($through[1])){
                 foreach(explode(',',$through[1]) as $rel){
-                    $rel_model = $thr_model->{$rel[0]}()->getRelated();
+                    $rel_model = $thr_model->{$rel}()->getRelated();
                     SortCache::$match_found = $this->matchSortKeysInModel($rel_model,$key);
                     if(SortCache::$match_found){
                         array_push(SortCache::$joins,$through[0]);
-                        array_push(SortCache::$joins,$through[1]);
+                        array_push(SortCache::$joins,$rel);
                         return true;
                     }
                 }
@@ -87,6 +85,11 @@ trait Sortable
             $is_alias = gettype($key) == 'string';
             $key = $is_alias ? $key : $column;
             if($match == $key){
+                if(is_array($column)){
+                    array_push(SortCache::$joins,$column[0]);
+                    $model = $model->{$column[0]}()->getRelated()->getModel();
+                    $column= $column[1];
+                }
                 SortCache::$sort_column = $model->getTable().".$column";
                 return true;
             }
