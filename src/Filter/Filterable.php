@@ -34,6 +34,7 @@ trait Filterable
     }
 
     private function initiateFilters($model,$filters){
+        $this->clearCache();
         $this->registerThrough($model);
         $this->registerAvailableKeys($model);
         $this->registerFilters($model,$filters);
@@ -252,5 +253,11 @@ trait Filterable
             if(count($val) != 0) return true;
         }
         return false;
+    }
+
+    private function clearCache(){
+        $this->cleanAvailableKeys();
+        $this->cleanThrough();
+        FilterCache::$filters = [];
     }
 }
