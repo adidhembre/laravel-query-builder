@@ -24,5 +24,9 @@ class SortCache
      */
     public static $sort_column = null;
 
+    /**
+     * To check if already grouped or not
+     */
 
+    public static $is_grouped = false;
 }

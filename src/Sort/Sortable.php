@@ -21,9 +21,11 @@ trait Sortable
         if(SortCache::$sort_column == null) SortCache::$sort_column = $key; // as it can be derived column
         $query->when(count(SortCache::$joins) > 0,function($q){
             $q->joinRelationship(implode('.',SortCache::$joins));
-        })
-        ->groupBy($query->getModel()->getTable().".id")
-        ->orderBy(SortCache::$sort_column,$order);
+        });
+        if(!SortCache::$is_grouped){
+            $query->groupBy($query->getModel()->getTable().".id");
+        }
+        $query->orderBy(SortCache::$sort_column,$order);
     }
 
     private function mapAvailableKeys($model,$key){
